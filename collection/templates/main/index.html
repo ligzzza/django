@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Главная страница</title>
+</head>
+<body>
+    <h1>Добро пожаловать!</h1>
+
+    <!-- Поиск -->
+    <form method="get" action="">
+        <input type="text" name="q" placeholder="Поиск предмета" value="{{ query }}">
+        <button type="submit">Искать</button>
+    </form>
+
+    <!-- Статистика -->
+    <h2>Статистика</h2>
+    <p>Общее количество предметов: {{ total_items }}</p>
+    <p>Средняя оценочная стоимость: {{ average_value|floatformat:2 }} руб.</p>
+
+    <!-- Последние добавленные монеты -->
+    <h2>Последние добавленные монеты</h2>
+    <ul>
+        {% for item in latest_coins %}
+            <li>{{ item.title }} - {{ item.estimated_value }} руб.</li>
+        {% empty %}
+            <li>Нет монет</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Последние марки -->
+    <h2>Последние добавленные марки</h2>
+    <ul>
+        {% for item in latest_stamps %}
+            <li>{{ item.title }} - {{ item.estimated_value }} руб.</li>
+        {% empty %}
+            <li>Нет марок</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
