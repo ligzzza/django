@@ -34,5 +34,5 @@ def index(request):
         'total_items': total_items,
         'average_value': avg_value,
     }
-
+hbrth
     return render(request, 'main/index.html', context)
