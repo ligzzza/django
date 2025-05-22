@@ -130,20 +130,3 @@ class StorageCondition(models.Model):
         verbose_name_plural = _("Условия хранения")
 
 
-class Transaction(models.Model):
-    item = models.ForeignKey(Item, on_delete=models.PROTECT, verbose_name=_("Предмет"))
-    buyer = models.ForeignKey(User, on_delete=models.PROTECT, related_name='buy_transactions',
-                              verbose_name=_("Покупатель"))
-    seller = models.ForeignKey(User, on_delete=models.PROTECT, related_name='sell_transactions',
-                               verbose_name=_("Продавец"))
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Цена сделки"))
-    transaction_date = models.DateTimeField(auto_now_add=True, verbose_name=_("Дата сделки"))
-    notes = models.TextField(blank=True, verbose_name=_("Примечания"))
-
-    def __str__(self):
-        return f"Сделка #{self.id} - {self.item.title}"
-
-    class Meta:
-        verbose_name = _("Транзакция")
-        verbose_name_plural = _("Транзакции")
-        ordering = ['-transaction_date']

@@ -22,7 +22,7 @@ admin.site.register(Role)
 
 # Добавьте в admin.py после существующего кода
 
-from .models import Category, Theme, Item, StorageCondition, Transaction
+from .models import Category, Theme, Item, StorageCondition
 
 
 class StorageConditionInline(admin.TabularInline):
@@ -64,15 +64,3 @@ class ThemeAdmin(admin.ModelAdmin):
     list_display_links = ('name',)
 
 
-@admin.register(Transaction)
-class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'item', 'buyer', 'seller', 'price', 'transaction_date')
-    list_filter = ('transaction_date',)
-    raw_id_fields = ('item', 'buyer', 'seller')
-    date_hierarchy = 'transaction_date'
-    search_fields = ('item__title', 'notes')
-    readonly_fields = ('transaction_date',)
-
-    @admin.display(description=_('Год предмета'))
-    def get_item_year(self, obj):
-        return obj.item.year
