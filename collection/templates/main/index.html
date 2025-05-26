@@ -60,7 +60,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Последние монеты</h4>
-                    <a href="{% url 'calendar_coins' %}" class="btn btn-sm btn-outline-secondary">Календарь премьер</a>
+                    <a href="{% url 'calendar_coins' %}" class="btn btn-sm btn-outline-secondary">Все монеты</a>
                 </div>
                 <ol class="list-group list-group-numbered list-group-flush">
                     {% for item in latest_coins %}
@@ -87,7 +87,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Последние марки</h4>
-                    <a href="{% url 'calendar_stamps' %}" class="btn btn-sm btn-outline-secondary">Календарь премьер</a>
+                    <a href="{% url 'calendar_stamps' %}" class="btn btn-sm btn-outline-secondary">Все марки</a>
                 </div>
                 <ol class="list-group list-group-numbered list-group-flush">
                     {% for item in latest_stamps %}
