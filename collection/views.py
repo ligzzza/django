@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Category, Item
 from django.db.models import Avg, Max
 
@@ -56,3 +56,36 @@ def stamps_view(request):
 def item_detail(request, item_id):
     item = get_object_or_404(Item, id=item_id)
     return render(request, 'main/item_detail.html', {'item': item})
+
+def items_list(request):
+    items = Item.objects.all()
+    return render(request, 'main/items_list.html', {'items': items})
+
+def item_create(request):
+    if request.method == 'POST':
+        form = Item(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('main/items_list')
+    else:
+        form = Item()
+    return render(request, 'main/item_form.html', {'form': form, 'title': 'Добавить предмет'})
+
+def item_edit(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    if request.method == 'POST':
+        form = Item(request.POST, request.FILES, instance=item)
+        if form.is_valid():
+            form.save()
+            return redirect('main/items_list')
+    else:
+        form = Item(instance=item)
+    return render(request, 'main/item_form.html', {'form': form, 'title': 'Редактировать предмет'})
+
+def item_delete(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    if request.method == 'POST':
+        item.delete()
+        return redirect('main/items_list')
+    # Можно сделать страницу подтверждения, или сразу удалять
+    return render(request, 'main/item_confirm_delete.html', {'item': item})
