@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django import forms
+
 
 
 class Role(models.Model):
@@ -91,7 +93,7 @@ class Item(models.Model):
         ('P', _('Плохое')),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_("Владелец"))
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, verbose_name=_("Владелец"))
     category = models.ForeignKey(Category, on_delete=models.PROTECT, verbose_name=_("Категория"))
     themes = models.ManyToManyField(Theme, verbose_name=_("Тематики"))
     title = models.CharField(max_length=255, verbose_name=_("Название"))
@@ -128,5 +130,18 @@ class StorageCondition(models.Model):
     class Meta:
         verbose_name = _("Условия хранения")
         verbose_name_plural = _("Условия хранения")
+
+
+class ItemForm(forms.ModelForm):
+    class Meta:
+        model = Item
+        fields = [
+            'category', 'themes', 'title', 'description', 'country',
+            'year', 'condition', 'estimated_value', 'photo'
+        ]
+        widgets = {
+            'themes': forms.CheckboxSelectMultiple(),  # Мультивыбор для тем
+            'condition': forms.Select(choices=Item.CONDITION_CHOICES),  # Выпадающий список для состояния
+        }
 
 

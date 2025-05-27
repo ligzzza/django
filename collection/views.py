@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Category, Item
+from .models import Category, Item, ItemForm
 from django.db.models import Avg, Max
+from django.contrib.auth.decorators import login_required
 
 def index(request):
     try:
@@ -19,7 +20,7 @@ def index(request):
 
         # Поиск
         query = request.GET.get('q', '')
-        items = Item.objects.filter(title__icontains=query) if query else None
+        items = Item.objects.filter(title__icontains=query) if query else Item.objects.all()
 
         return render(request, 'main/index.html', {
             'latest_coins': latest_coins,
@@ -44,14 +45,22 @@ def index(request):
         })
 
 def coins_view(request):
-    coins_category = Category.objects.get(name="Монеты")
-    coins = Item.objects.filter(category=coins_category).order_by('-id')
-    return render(request, 'main/calendar_coins.html', {'coins': coins})
+    try:
+        coins_category = Category.objects.get(name="Монеты")
+        coins = Item.objects.filter(category=coins_category).order_by('-id')
+    except Category.DoesNotExist:
+        coins = []
+
+    return render(request, 'main/calendar_coins.html', {'items': coins})
 
 def stamps_view(request):
-    stamps_category = Category.objects.get(name="Марки")
-    stamps = Item.objects.filter(category=stamps_category).order_by('-id')
-    return render(request, 'main/calendar_stamps.html', {'stamps': stamps})
+    try:
+        stamps_category = Category.objects.get(name="Марки")
+        stamps = Item.objects.filter(category=stamps_category).order_by('-id')
+    except Category.DoesNotExist:
+        stamps = []
+
+    return render(request, 'main/calendar_stamps.html', {'items': stamps})
 
 def item_detail(request, item_id):
     item = get_object_or_404(Item, id=item_id)
@@ -61,14 +70,17 @@ def items_list(request):
     items = Item.objects.all()
     return render(request, 'main/items_list.html', {'items': items})
 
+
 def item_create(request):
     if request.method == 'POST':
-        form = Item(request.POST, request.FILES)
+        form = ItemForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            new_item = form.save(commit=False)
+            new_item.save()
+            form.save_m2m()
             return redirect('main/items_list')
     else:
-        form = Item()
+        form = ItemForm()
     return render(request, 'main/item_form.html', {'form': form, 'title': 'Добавить предмет'})
 
 def item_edit(request, pk):
