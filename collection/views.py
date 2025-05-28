@@ -5,6 +5,7 @@ from .models import Category, Item
 from django.db.models import Avg, Max
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.contrib import messages
 
 def index(request):
     try:
@@ -90,25 +91,34 @@ def item_create(request):
     return render(request, 'main/item_form.html', {'form': form, 'title': 'Создать новый элемент'})
 
 def item_edit(request, pk):
-    item = get_object_or_404(Item, pk=pk)
-
-    if request.method == 'GET':
-        form = ItemForm(instance=item)
-        context = {'form': form, 'title': 'Редактировать предмет'}
-        return render(request, 'main/edit_form.html', context)
-
-    elif request.method == 'POST':
+    item = get_object_or_404(Item, id=pk)
+    if request.method == 'POST':
         form = ItemForm(request.POST, request.FILES, instance=item)
         if form.is_valid():
             form.save()
             return JsonResponse({'success': True})
         else:
             return JsonResponse({'success': False, 'errors': form.errors})
+    else:
+        form = ItemForm(instance=item)
+        return render(request, 'main/edit_form.html', {'form': form, 'item': item})
+
+
+
+
+
 
 def item_delete(request, pk):
-    item = get_object_or_404(Item, pk=pk)
+    try:
+        item = Item.objects.get(pk=pk)
+    except Item.DoesNotExist:
+        messages.error(request, "Предмет не найден.")
+        return redirect(request.META.get('HTTP_REFERER', 'items_list'))
+
     if request.method == 'POST':
         item.delete()
-        return redirect('main/items_list')
-    # Можно сделать страницу подтверждения, или сразу удалять
-    return render(request, 'main/item_confirm_delete.html', {'item': item})
+        messages.success(request, "Предмет успешно удалён.")
+        return redirect(request.META.get('HTTP_REFERER', 'items_list'))
+
+    return render(request, 'main/item_form.html', {'item': item})
+

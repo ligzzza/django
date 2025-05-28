@@ -5,7 +5,7 @@
     <title>Title</title>
 </head>
 <body>
-  <form id="editItemForm" method="post" enctype="multipart/form-data">
+  <form id="editItemForm" method="post" enctype="multipart/form-data" action="{% url 'item_edit' item.id %}">
       {% csrf_token %}
       {% for field in form %}
           <div class="mb-3">
