@@ -6,8 +6,7 @@ from django import forms
 
 
 class Role(models.Model):
-    name = models.CharField(max_length=50, verbose_name=_("Название роли"),
-                            choices=[('collector', 'Коллекционер'), ('admin', 'Администратор')])
+    name = models.CharField(max_length=50, verbose_name=_("Название роли"))
 
     def __str__(self):
         return self.get_name_display()
@@ -132,16 +131,6 @@ class StorageCondition(models.Model):
         verbose_name_plural = _("Условия хранения")
 
 
-class ItemForm(forms.ModelForm):
-    class Meta:
-        model = Item
-        fields = [
-            'category', 'themes', 'title', 'description', 'country',
-            'year', 'condition', 'estimated_value', 'photo'
-        ]
-        widgets = {
-            'themes': forms.CheckboxSelectMultiple(),  # Мультивыбор для тем
-            'condition': forms.Select(choices=Item.CONDITION_CHOICES),  # Выпадающий список для состояния
-        }
+
 
 

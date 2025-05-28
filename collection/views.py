@@ -1,7 +1,10 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Category, Item, ItemForm
+from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
+from .forms import ItemForm
+from .models import Category, Item
 from django.db.models import Avg, Max
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 
 def index(request):
     try:
@@ -71,28 +74,36 @@ def items_list(request):
     return render(request, 'main/items_list.html', {'items': items})
 
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Item   # или ваша модель
+
 def item_create(request):
     if request.method == 'POST':
         form = ItemForm(request.POST, request.FILES)
         if form.is_valid():
-            new_item = form.save(commit=False)
-            new_item.save()
-            form.save_m2m()
-            return redirect('main/items_list')
+            form.save()
+            messages.success(request, "Данные успешно добавлены!")  # сообщение для toast
+            return redirect('item_create')  # перенаправление на ту же страницу
     else:
         form = ItemForm()
-    return render(request, 'main/item_form.html', {'form': form, 'title': 'Добавить предмет'})
+    return render(request, 'main/item_form.html', {'form': form, 'title': 'Создать новый элемент'})
 
 def item_edit(request, pk):
     item = get_object_or_404(Item, pk=pk)
-    if request.method == 'POST':
-        form = Item(request.POST, request.FILES, instance=item)
+
+    if request.method == 'GET':
+        form = ItemForm(instance=item)
+        context = {'form': form, 'title': 'Редактировать предмет'}
+        return render(request, 'main/edit_form.html', context)
+
+    elif request.method == 'POST':
+        form = ItemForm(request.POST, request.FILES, instance=item)
         if form.is_valid():
             form.save()
-            return redirect('main/items_list')
-    else:
-        form = Item(instance=item)
-    return render(request, 'main/item_form.html', {'form': form, 'title': 'Редактировать предмет'})
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
 
 def item_delete(request, pk):
     item = get_object_or_404(Item, pk=pk)
