@@ -12,4 +12,5 @@ urlpatterns = [
     path('items/add/', views.item_create, name='item_create'),
     path('items/edit/<int:pk>/', views.item_edit, name='item_edit'),
     path('items/<int:pk>/delete/', views.item_delete, name='item_delete'),
+    path('toggle-favorite/<int:item_id>/', views.toggle_favorite, name='toggle_favorite'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

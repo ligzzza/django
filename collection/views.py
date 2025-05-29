@@ -22,6 +22,11 @@ def index(request):
         average_value = Item.objects.aggregate(Avg('estimated_value'))['estimated_value__avg'] or 0
         max_value = Item.objects.aggregate(Max('estimated_value'))['estimated_value__max'] or 0
 
+        favorite_ids = request.session.get('favorites', [])
+
+        # Получаем предметы, которые в избранном (по id)
+        favorite_items = Item.objects.filter(id__in=favorite_ids)
+
         # Поиск
         query = request.GET.get('q', '')
         items = Item.objects.filter(title__icontains=query) if query else Item.objects.all()
@@ -35,7 +40,9 @@ def index(request):
             'query': query,
             'items': items,
             'coins_category_id': coins_category.id,
-            'stamps_category_id': stamps_category.id
+            'stamps_category_id': stamps_category.id,
+            'favorite_ids': favorite_ids,
+            'favorite_items': favorite_items,
         })
 
     except Category.DoesNotExist:
@@ -104,10 +111,6 @@ def item_edit(request, pk):
         return render(request, 'main/edit_form.html', {'form': form, 'item': item})
 
 
-
-
-
-
 def item_delete(request, pk):
     try:
         item = Item.objects.get(pk=pk)
@@ -121,4 +124,18 @@ def item_delete(request, pk):
         return redirect(request.META.get('HTTP_REFERER', 'items_list'))
 
     return render(request, 'main/item_form.html', {'item': item})
+
+
+def toggle_favorite(request, item_id):
+    if request.method == "POST":
+        favorites = request.session.get('favorites', [])
+        if item_id in favorites:
+            favorites.remove(item_id)
+        else:
+            favorites.append(item_id)
+        request.session['favorites'] = favorites
+        request.session.modified = True
+    return redirect('index')
+
+
 
